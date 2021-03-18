@@ -1,7 +1,14 @@
 import { useContext, useEffect, useRef, useState } from "react";
-import { Button, Icon, Input, Segment } from "semantic-ui-react";
+import {
+	Button,
+	Icon,
+	Input,
+	Message,
+	Popup,
+	Segment,
+} from "semantic-ui-react";
 import { AuthContext } from "../../actions/auth/AuthContext";
-import { Message } from "../../types/userTypes";
+import { MessageType } from "../../types/userTypes";
 import "../../styles/home.scss";
 
 function ChatBox({
@@ -9,7 +16,7 @@ function ChatBox({
 	sendMessage,
 	deSelectUser,
 }: {
-	messages: Message[];
+	messages: MessageType[];
 	sendMessage: (message: string) => void;
 	deSelectUser: () => void;
 }) {
@@ -28,6 +35,19 @@ function ChatBox({
 				name="arrow left"
 				size="big"
 				onClick={deSelectUser}
+			/>
+			<Popup
+				trigger={
+					<Icon className="info__btn" name="info circle" size="big" />
+				}
+				content={
+					<Message
+						warning
+						size="small"
+						header="Not Encrypted"
+						content="messages are not encrypted in this app, don't share any personal info"
+					/>
+				}
 			/>
 			<div className="chat__messages__container">
 				{messages.map((message) => (

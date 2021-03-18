@@ -10,7 +10,7 @@ import {
 } from "semantic-ui-react";
 import { AuthContext } from "../actions/auth/AuthContext";
 import { UserInfo } from "../types/authTypes";
-import { Message, SearchResult } from "../types/userTypes";
+import { MessageType, SearchResult } from "../types/userTypes";
 import ChatBox from "./subComponents/ChatBox";
 import SideBar from "./subComponents/SideBar";
 import "../styles/home.scss";
@@ -40,7 +40,7 @@ function Home({
 	results: SearchResult[];
 	value: string;
 	activeUser: UserInfo | null;
-	messages: Message[];
+	messages: MessageType[];
 	userOnClick: (id: string) => void;
 	logoutUser: () => Promise<void>;
 	sendMessage: (message: string) => void;

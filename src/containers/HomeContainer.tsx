@@ -5,8 +5,8 @@ import { AuthContext } from "../actions/auth/AuthContext";
 import { addFriend, getUser } from "../actions/users/usersActions";
 import { logout } from "../actions/auth/authActions";
 import { Home } from "../components/Home";
-import { ActionTypes, AuthStatus, UserInfo } from "../types/authTypes";
-import { Message, SearchResult, User } from "../types/userTypes";
+import { ActionTypes, AuthStatus } from "../types/authTypes";
+import { MessageType, SearchResult, User } from "../types/userTypes";
 
 function HomeContainer() {
 	const { authInfo, dispatch } = useContext(AuthContext);
@@ -14,34 +14,26 @@ function HomeContainer() {
 	const [loading, setLoading] = useState<boolean>(false);
 	const [results, setResults] = useState<SearchResult[]>([]);
 	const [activeUser, setActiveUser] = useState<User | null>(null);
-	const [messages, setMessages] = useState<Message[]>([]);
+	const [messages, setMessages] = useState<MessageType[]>([]);
 
 	useEffect(() => {
 		const socket = authInfo.socket;
 		if (socket !== null) {
 			socket.on(
 				"oldMessages",
-				({ messages }: { messages: Message[] }) => {
+				({ messages }: { messages: MessageType[] }) => {
 					setMessages(messages);
 				}
 			);
 			socket.on(
 				"newMessage",
-				({ newMessage }: { newMessage: Message }) => {
+				({ newMessage }: { newMessage: MessageType }) => {
 					setMessages((oldMessages) => [...oldMessages, newMessage]);
 				}
 			);
 			socket.on("alert", (data: any) => alert(data));
 		}
 	}, [authInfo.socket]);
-
-	useEffect(() => {
-		if (authInfo.socket && authInfo.userInfo.friends)
-			authInfo.socket.emit(
-				"joinAllRoom",
-				authInfo.userInfo.friends.map((friend) => friend.roomId)
-			);
-	}, [authInfo.userInfo.friends, authInfo.socket]);
 
 	const searchUser = async (query: string) => {
 		const { userInfo } = authInfo;
@@ -101,8 +93,8 @@ function HomeContainer() {
 						friends: [...oldFriends, friend],
 					},
 				});
-				setActiveUser(friend);
-			} else setActiveUser(friend);
+				userOnClick(friend._id);
+			} else userOnClick(friend._id);
 		}
 		setValue("");
 	};

@@ -11,11 +11,11 @@ interface SearchResult {
 	description: string;
 }
 
-interface Message {
+interface MessageType {
 	_id?: string;
 	author: string;
 	message: string;
 	timestamp: Date;
 }
 
-export type { User, SearchResult, Message };
+export type { User, SearchResult, MessageType };

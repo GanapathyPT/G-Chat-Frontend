@@ -11,7 +11,7 @@ import {
 import { getUserDetails, login, refreshToken, register } from "./authActions";
 import { connect } from "socket.io-client";
 
-const SOCKET_URL = "http://localhost:8000";
+const SOCKET_URL = process.env.REACT_APP_SOCKET_URL as string;
 
 const initialState: AuthInfo = {
 	authStatus: AuthStatus.NOT_AUTHENTICATED,
@@ -169,14 +169,27 @@ const customAuthDispatch = (dispatch: Dispatch<AuthAction>) => async (
 
 		case ActionTypes.UPDATE_USERINFO: {
 			const { email, username, friends } = action.payload;
-			dispatch({
-				type: AuthActionType.SET_USERINFO,
-				payload: {
-					email,
-					username,
-					friends,
-				},
-			});
+			if (email)
+				dispatch({
+					type: AuthActionType.UPDATE_USERINFO,
+					payload: {
+						email,
+					},
+				});
+			else if (username)
+				dispatch({
+					type: AuthActionType.UPDATE_USERINFO,
+					payload: {
+						username,
+					},
+				});
+			else if (friends)
+				dispatch({
+					type: AuthActionType.UPDATE_USERINFO,
+					payload: {
+						friends,
+					},
+				});
 			return;
 		}
 
