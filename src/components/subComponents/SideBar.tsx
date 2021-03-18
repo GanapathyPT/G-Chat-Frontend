@@ -11,6 +11,20 @@ import { AuthContext } from "../../actions/auth/AuthContext";
 import { UserInfo } from "../../types/authTypes";
 import { SearchResult } from "../../types/userTypes";
 
+const usersAvatar = [
+	"rachel.png",
+	"lindsay.png",
+	"matthew.png",
+	"jenny.jpg",
+	"veronika.jpg",
+	"tom.jpg",
+	"christian.jpg",
+	"matt.jpg",
+	"daniel.jpg",
+];
+const getRandomAvatar = () =>
+	usersAvatar[Math.floor(Math.random() * usersAvatar.length)];
+
 function SideBar({
 	loading,
 	onResultSelect,
@@ -39,7 +53,7 @@ function SideBar({
 	const { authInfo } = useContext(AuthContext);
 
 	return (
-		<>
+		<div>
 			<div className="search__menu">
 				<Search
 					placeholder="Search User . . ."
@@ -72,16 +86,16 @@ function SideBar({
 					>
 						<Image
 							avatar
-							src="https://react.semantic-ui.com/images/avatar/small/rachel.png"
+							src={`https://react.semantic-ui.com/images/avatar/small/${getRandomAvatar()}`}
 						/>
 						<List.Content>
 							<List.Header>{friend.username}</List.Header>
-							<List.Description>Hi there</List.Description>
+							<List.Description>{friend.email}</List.Description>
 						</List.Content>
 					</List.Item>
 				))}
 			</List>
-		</>
+		</div>
 	);
 }
 

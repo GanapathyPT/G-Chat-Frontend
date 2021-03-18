@@ -2,13 +2,16 @@ import { useContext, useEffect, useRef, useState } from "react";
 import { Button, Icon, Input, Segment } from "semantic-ui-react";
 import { AuthContext } from "../../actions/auth/AuthContext";
 import { Message } from "../../types/userTypes";
+import "../../styles/home.scss";
 
 function ChatBox({
 	messages,
 	sendMessage,
+	deSelectUser,
 }: {
 	messages: Message[];
 	sendMessage: (message: string) => void;
+	deSelectUser: () => void;
 }) {
 	const { authInfo } = useContext(AuthContext);
 	const [message, setMessage] = useState<string>("");
@@ -20,6 +23,12 @@ function ChatBox({
 
 	return (
 		<Segment className="chat__box">
+			<Icon
+				className="back__btn"
+				name="arrow left"
+				size="big"
+				onClick={deSelectUser}
+			/>
 			<div className="chat__messages__container">
 				{messages.map((message) => (
 					<p

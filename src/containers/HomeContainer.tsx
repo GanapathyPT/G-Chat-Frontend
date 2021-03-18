@@ -127,6 +127,10 @@ function HomeContainer() {
 		}
 	};
 
+	const deSelectUser = () => {
+		setActiveUser(null);
+	};
+
 	if (authInfo.authStatus !== AuthStatus.AUTHENTICATED)
 		return <Redirect to="/login" />;
 
@@ -142,6 +146,7 @@ function HomeContainer() {
 			userOnClick={userOnClick}
 			logoutUser={logoutUser}
 			sendMessage={sendMessage}
+			deSelectUser={deSelectUser}
 		/>
 	);
 }

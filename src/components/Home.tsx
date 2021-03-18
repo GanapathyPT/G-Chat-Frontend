@@ -5,7 +5,6 @@ import {
 	GridRow,
 	Header,
 	Icon,
-	Item,
 	SearchProps,
 	SearchResultData,
 } from "semantic-ui-react";
@@ -14,6 +13,7 @@ import { UserInfo } from "../types/authTypes";
 import { Message, SearchResult } from "../types/userTypes";
 import ChatBox from "./subComponents/ChatBox";
 import SideBar from "./subComponents/SideBar";
+import "../styles/home.scss";
 
 function Home({
 	loading,
@@ -26,6 +26,7 @@ function Home({
 	userOnClick,
 	logoutUser,
 	sendMessage,
+	deSelectUser,
 }: {
 	loading: boolean;
 	onResultSelect: (
@@ -43,15 +44,22 @@ function Home({
 	userOnClick: (id: string) => void;
 	logoutUser: () => Promise<void>;
 	sendMessage: (message: string) => void;
+	deSelectUser: () => void;
 }) {
 	const { authInfo } = useContext(AuthContext);
 
 	return (
 		<Grid columns="two" divided className="home__container">
 			<GridRow>
-				<GridColumn computer={4} className="full__height">
+				<GridColumn
+					computer={4}
+					mobile={16}
+					className={`full__height ${
+						activeUser ? "display__none__mobile" : ""
+					}`}
+				>
 					<Header textAlign="center" size="huge">
-						Pigeon Messenger
+						G - Chat
 					</Header>
 					<SideBar
 						loading={loading}
@@ -64,11 +72,18 @@ function Home({
 						logoutUser={logoutUser}
 					/>
 				</GridColumn>
-				<GridColumn computer={12} className="full__height">
+				<GridColumn
+					computer={12}
+					mobile={16}
+					className={`full_height ${
+						activeUser ? "" : "display__none__mobile"
+					}`}
+				>
 					{activeUser ? (
 						<ChatBox
 							sendMessage={sendMessage}
 							messages={messages}
+							deSelectUser={deSelectUser}
 						/>
 					) : authInfo.userInfo.friends?.length ? (
 						<div className="full__height center">
