@@ -1,0 +1,69 @@
+import { useContext, useEffect, useRef, useState } from "react";
+import { Button, Icon, Input, Segment } from "semantic-ui-react";
+import { AuthContext } from "../../actions/auth/AuthContext";
+import { Message } from "../../types/userTypes";
+
+function ChatBox({
+	messages,
+	sendMessage,
+}: {
+	messages: Message[];
+	sendMessage: (message: string) => void;
+}) {
+	const { authInfo } = useContext(AuthContext);
+	const [message, setMessage] = useState<string>("");
+	const ref = useRef<HTMLDivElement>(null);
+
+	useEffect(() => {
+		if (ref && ref.current) ref.current.scrollIntoView();
+	}, [messages, ref]);
+
+	return (
+		<Segment className="chat__box">
+			<div className="chat__messages__container">
+				{messages.map((message) => (
+					<p
+						key={message._id}
+						className={`chat__message ${
+							message.author === authInfo.userInfo._id
+								? "our__message"
+								: ""
+						}`}
+					>
+						<span>{message.message}</span>
+					</p>
+				))}
+				<div ref={ref} />
+			</div>
+			<Input
+				autoFocus
+				value={message}
+				className="chat__input"
+				onKeyPress={(e: any) => {
+					if (e.charCode === 13) {
+						sendMessage(e.target.value);
+						setMessage("");
+					}
+				}}
+				onChange={(e) => setMessage(e.target.value)}
+				label={
+					<Button
+						primary
+						icon
+						active
+						onClick={() => {
+							sendMessage(message);
+							setMessage("");
+						}}
+					>
+						<Icon name="send" />
+					</Button>
+				}
+				labelPosition="right"
+				placeholder="Type anything . . ."
+			/>
+		</Segment>
+	);
+}
+
+export default ChatBox;

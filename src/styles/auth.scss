@@ -1,0 +1,16 @@
+.login__page {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+
+    .login__card {
+        padding: 30px;
+
+        h3 {
+            font-size: 30px;
+            text-align: center;
+        }
+    }
+}
