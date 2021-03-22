@@ -1,6 +1,9 @@
 import { AuthResponse, UserInfo } from "../../types/authTypes";
 import { User } from "../../types/userTypes";
 
+const ACCESS_TOKEN = "access-token";
+const REFRESH_TOKEN = "refresh-token";
+
 const saveLocalStorage = (key?: string, value?: string) => {
 	key && value && localStorage.setItem(key, value);
 };
@@ -20,8 +23,8 @@ const login = async (
 
 	const response = await fetch("/api/auth/login", requestOptions);
 	const data: AuthResponse = await response.json();
-	saveLocalStorage("access-token", data.accessToken);
-	saveLocalStorage("refresh-token", data.refreshToken);
+	saveLocalStorage(ACCESS_TOKEN, data.accessToken);
+	saveLocalStorage(REFRESH_TOKEN, data.refreshToken);
 
 	return data;
 };
@@ -42,8 +45,8 @@ const register = async (
 
 	const response = await fetch("/api/auth/register", requestOptions);
 	const data: AuthResponse = await response.json();
-	saveLocalStorage("access-token", data.accessToken);
-	saveLocalStorage("refresh-token", data.refreshToken);
+	saveLocalStorage(ACCESS_TOKEN, data.accessToken);
+	saveLocalStorage(REFRESH_TOKEN, data.refreshToken);
 
 	return data;
 };
@@ -115,4 +118,22 @@ const logout = async (): Promise<void> => {
 	localStorage.removeItem("refresh-token");
 };
 
-export { login, register, getUserDetails, refreshToken, logout };
+const googleAuth = async (id: string): Promise<AuthResponse> => {
+	const requestOptions: RequestInit = {
+		method: "POST",
+		headers: {
+			"Content-Type": "application/json",
+			Accept: "application/json",
+		},
+		body: JSON.stringify({ token: id }),
+	};
+
+	const response = await fetch("/api/auth/googleAuth", requestOptions);
+	const data: AuthResponse = await response.json();
+	saveLocalStorage(ACCESS_TOKEN, data.accessToken);
+	saveLocalStorage(REFRESH_TOKEN, data.refreshToken);
+
+	return data;
+};
+
+export { login, register, getUserDetails, refreshToken, logout, googleAuth };

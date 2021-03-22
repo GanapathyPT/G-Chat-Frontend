@@ -56,6 +56,7 @@ enum ActionTypes {
 	LOGIN = 1,
 	AUTHENTICATE = 2,
 	UPDATE_USERINFO = 3,
+	SOCIAL_AUTH = 4,
 }
 
 interface Register {
@@ -87,7 +88,14 @@ interface UpdateUserInfo {
 	payload: Partial<UserInfo>;
 }
 
-type Actions = Register | Login | Authenticate | UpdateUserInfo;
+interface SocialLogin {
+	type: ActionTypes.SOCIAL_AUTH;
+	payload: {
+		token: string;
+	};
+}
+
+type Actions = Register | Login | Authenticate | UpdateUserInfo | SocialLogin;
 
 // reducer related
 enum AuthActionType {

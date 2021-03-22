@@ -101,7 +101,7 @@ function Home({
 								<Icon name="hand peace" />
 								Hii {authInfo.userInfo.username}
 								<Header.Subheader>
-									search for your friend name and click to add
+									search for admin to chat with me
 								</Header.Subheader>
 							</Header>
 						</div>

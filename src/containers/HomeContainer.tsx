@@ -67,6 +67,7 @@ function HomeContainer() {
 		if (oldFriends) {
 			const friend = oldFriends.find((friend) => friend._id === id);
 			if (friend) {
+				setMessages([]);
 				authInfo.socket?.emit("getMessages", {
 					roomId: friend.roomId,
 				});
@@ -121,6 +122,7 @@ function HomeContainer() {
 
 	const deSelectUser = () => {
 		setActiveUser(null);
+		setMessages([]);
 	};
 
 	if (authInfo.authStatus !== AuthStatus.AUTHENTICATED)

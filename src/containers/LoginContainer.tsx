@@ -1,4 +1,8 @@
 import { Dispatch, useCallback, useContext } from "react";
+import {
+	GoogleLoginResponse,
+	GoogleLoginResponseOffline,
+} from "react-google-login";
 import { Redirect } from "react-router";
 import { AuthContext } from "../actions/auth/AuthContext";
 import { Login } from "../components/Login";
@@ -39,10 +43,24 @@ function LoginContainer() {
 		[]
 	);
 
+	const onSuccess = (
+		response: GoogleLoginResponse | GoogleLoginResponseOffline
+	) => {
+		const gResponse = response as GoogleLoginResponse;
+		// console.log(response);
+		// googleAuth(gResponse.tokenId);
+		dispatch({
+			type: ActionTypes.SOCIAL_AUTH,
+			payload: {
+				token: gResponse.tokenId,
+			},
+		});
+	};
+
 	if (authInfo.authStatus === AuthStatus.AUTHENTICATED)
 		return <Redirect to="/" />;
 
-	return <Login loginUser={loginUser} />;
+	return <Login loginUser={loginUser} onSuccess={onSuccess} />;
 }
 
 export { LoginContainer };

@@ -1,6 +1,10 @@
 import { Dispatch, useState } from "react";
+import GoogleLogin, {
+	GoogleLoginResponse,
+	GoogleLoginResponseOffline,
+} from "react-google-login";
 import { Link } from "react-router-dom";
-import { Button, Card, Form } from "semantic-ui-react";
+import { Button, Card, Divider, Form } from "semantic-ui-react";
 import { RegisterErrors } from "../types/authTypes";
 
 interface Props {
@@ -10,9 +14,12 @@ interface Props {
 		password: string,
 		setError: Dispatch<RegisterErrors>
 	) => void;
+	onSuccess: (
+		response: GoogleLoginResponse | GoogleLoginResponseOffline
+	) => void;
 }
 
-function Register({ registerUser }: Props) {
+function Register({ registerUser, onSuccess }: Props) {
 	const [username, setUsername] = useState<string>("");
 	const [email, setEmail] = useState<string>("");
 	const [password, setPassword] = useState<string>("");
@@ -55,6 +62,17 @@ function Register({ registerUser }: Props) {
 						onChange={(e) => setPassword(e.target.value)}
 						error={error.password}
 					/>
+					<Divider horizontal>or</Divider>
+					<Form.Field className="btn__center">
+						<GoogleLogin
+							clientId={
+								process.env.REACT_APP_GOOGLE_CLIENT_ID as string
+							}
+							buttonText="Register with Google"
+							onSuccess={onSuccess}
+							style={{ width: "100%" }}
+						/>
+					</Form.Field>
 					<Button type="submit" primary>
 						Sign Up
 					</Button>

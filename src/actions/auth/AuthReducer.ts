@@ -8,7 +8,13 @@ import {
 	ActionTypes,
 	AuthError,
 } from "../../types/authTypes";
-import { getUserDetails, login, refreshToken, register } from "./authActions";
+import {
+	getUserDetails,
+	googleAuth,
+	login,
+	refreshToken,
+	register,
+} from "./authActions";
 import { connect } from "socket.io-client";
 
 const SOCKET_URL = process.env.REACT_APP_SOCKET_URL as string;
@@ -190,6 +196,40 @@ const customAuthDispatch = (dispatch: Dispatch<AuthAction>) => async (
 						friends,
 					},
 				});
+			return;
+		}
+
+		case ActionTypes.SOCIAL_AUTH: {
+			const { token } = action.payload;
+			const { errors } = await googleAuth(token);
+			if (errors === null) {
+				const userInfo = await getUserDetails();
+				if (userInfo !== null) {
+					dispatch({
+						type: AuthActionType.SET_USERINFO,
+						payload: userInfo,
+					});
+					dispatch({
+						type: AuthActionType.SET_AUTHSTATUS,
+						payload: AuthStatus.AUTHENTICATED,
+					});
+					const socket = connect(SOCKET_URL);
+					dispatch({
+						type: AuthActionType.SET_SOCKET,
+						payload: socket,
+					});
+				} else
+					dispatch({
+						type: AuthActionType.SET_AUTHSTATUS,
+						payload: AuthStatus.NOT_AUTHENTICATED,
+					});
+			} else {
+				dispatch({
+					type: AuthActionType.SET_AUTHSTATUS,
+					payload: AuthStatus.NOT_AUTHENTICATED,
+				});
+				return errors;
+			}
 			return;
 		}
 

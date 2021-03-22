@@ -1,4 +1,8 @@
 import { Dispatch, useCallback, useContext } from "react";
+import {
+	GoogleLoginResponse,
+	GoogleLoginResponseOffline,
+} from "react-google-login";
 import { Redirect } from "react-router";
 import { AuthContext } from "../actions/auth/AuthContext";
 import { Register } from "../components/Register";
@@ -43,10 +47,25 @@ function RegisterContainer() {
 		},
 		[]
 	);
+
+	const onSuccess = (
+		response: GoogleLoginResponse | GoogleLoginResponseOffline
+	) => {
+		const gResponse = response as GoogleLoginResponse;
+		// console.log(response);
+		// googleAuth(gResponse.tokenId);
+		dispatch({
+			type: ActionTypes.SOCIAL_AUTH,
+			payload: {
+				token: gResponse.tokenId,
+			},
+		});
+	};
+
 	if (authInfo.authStatus === AuthStatus.AUTHENTICATED)
 		return <Redirect to="/" />;
 
-	return <Register registerUser={registerUser} />;
+	return <Register registerUser={registerUser} onSuccess={onSuccess} />;
 }
 
 export { RegisterContainer };

@@ -1,6 +1,10 @@
 import { Dispatch, useState } from "react";
+import GoogleLogin, {
+	GoogleLoginResponse,
+	GoogleLoginResponseOffline,
+} from "react-google-login";
 import { Link } from "react-router-dom";
-import { Button, Card, Form } from "semantic-ui-react";
+import { Button, Card, Divider, Form } from "semantic-ui-react";
 import { LoginErrors } from "../types/authTypes";
 
 interface Props {
@@ -9,9 +13,12 @@ interface Props {
 		password: string,
 		setError: Dispatch<LoginErrors>
 	) => void;
+	onSuccess: (
+		response: GoogleLoginResponse | GoogleLoginResponseOffline
+	) => void;
 }
 
-function Login({ loginUser }: Props) {
+function Login({ loginUser, onSuccess }: Props) {
 	const [email, setEmail] = useState<string>("");
 	const [password, setPassword] = useState<string>("");
 	const [error, setError] = useState<LoginErrors>({});
@@ -40,6 +47,17 @@ function Login({ loginUser }: Props) {
 						onChange={(e) => setPassword(e.target.value)}
 						error={error.password}
 					/>
+					<Divider horizontal>or</Divider>
+					<Form.Field className="btn__center">
+						<GoogleLogin
+							clientId={
+								process.env.REACT_APP_GOOGLE_CLIENT_ID as string
+							}
+							buttonText="Login with Google"
+							onSuccess={onSuccess}
+							style={{ width: "100%" }}
+						/>
+					</Form.Field>
 					<Button type="submit" primary>
 						Sign In
 					</Button>
