@@ -70,7 +70,7 @@ function Register({ registerUser, onSuccess }: Props) {
 							}
 							buttonText="Register with Google"
 							onSuccess={onSuccess}
-							style={{ width: "100%" }}
+							cookiePolicy="single_host_origin"
 						/>
 					</Form.Field>
 					<Button type="submit" primary>

@@ -33,6 +33,7 @@ const App = () => {
 		authenticate(true);
 		const interval = setInterval(authenticate, 1000 * 60 * 60);
 		return () => clearInterval(interval);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
 	if (authInfo.authStatus === AuthStatus.AUTHENTICATION_LOADING)

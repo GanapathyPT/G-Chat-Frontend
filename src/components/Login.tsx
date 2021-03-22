@@ -55,7 +55,7 @@ function Login({ loginUser, onSuccess }: Props) {
 							}
 							buttonText="Login with Google"
 							onSuccess={onSuccess}
-							style={{ width: "100%" }}
+							cookiePolicy="single_host_origin"
 						/>
 					</Form.Field>
 					<Button type="submit" primary>
