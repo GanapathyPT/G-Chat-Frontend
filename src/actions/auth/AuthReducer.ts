@@ -12,6 +12,7 @@ import {
 	getUserDetails,
 	googleAuth,
 	login,
+	logout,
 	refreshToken,
 	register,
 } from "./authActions";
@@ -64,6 +65,10 @@ const customAuthDispatch = (dispatch: Dispatch<AuthAction>) => async (
 ): Promise<[AuthError] | undefined> => {
 	switch (action.type) {
 		case ActionTypes.REGISTER: {
+			dispatch({
+				type: AuthActionType.SET_AUTHSTATUS,
+				payload: AuthStatus.AUTHENTICATION_LOADING,
+			});
 			const { email, password, username } = action.payload;
 			const { errors } = await register(username, email, password);
 			if (errors === null) {
@@ -98,6 +103,10 @@ const customAuthDispatch = (dispatch: Dispatch<AuthAction>) => async (
 		}
 
 		case ActionTypes.LOGIN: {
+			dispatch({
+				type: AuthActionType.SET_AUTHSTATUS,
+				payload: AuthStatus.AUTHENTICATION_LOADING,
+			});
 			const { email, password } = action.payload;
 			const { errors } = await login(email, password);
 			if (errors === null) {
@@ -173,6 +182,27 @@ const customAuthDispatch = (dispatch: Dispatch<AuthAction>) => async (
 			return;
 		}
 
+		case ActionTypes.LOGOUT: {
+			dispatch({
+				type: AuthActionType.SET_AUTHSTATUS,
+				payload: AuthStatus.AUTHENTICATION_LOADING,
+			});
+			await logout();
+			dispatch({
+				type: AuthActionType.SET_USERINFO,
+				payload: {},
+			});
+			dispatch({
+				type: AuthActionType.SET_AUTHSTATUS,
+				payload: AuthStatus.NOT_AUTHENTICATED,
+			});
+			dispatch({
+				type: AuthActionType.SET_SOCKET,
+				payload: null,
+			});
+			return;
+		}
+
 		case ActionTypes.UPDATE_USERINFO: {
 			const { email, username, friends } = action.payload;
 			if (email)
@@ -200,6 +230,11 @@ const customAuthDispatch = (dispatch: Dispatch<AuthAction>) => async (
 		}
 
 		case ActionTypes.SOCIAL_AUTH: {
+			dispatch({
+				type: AuthActionType.SET_AUTHSTATUS,
+				payload: AuthStatus.AUTHENTICATION_LOADING,
+			});
+
 			const { token } = action.payload;
 			const { errors } = await googleAuth(token);
 			if (errors === null) {

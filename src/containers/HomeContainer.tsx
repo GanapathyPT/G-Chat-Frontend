@@ -3,7 +3,6 @@ import { Redirect } from "react-router";
 import { SearchProps, SearchResultData } from "semantic-ui-react";
 import { AuthContext } from "../actions/auth/AuthContext";
 import { addFriend, getUser } from "../actions/users/usersActions";
-import { logout } from "../actions/auth/authActions";
 import { Home } from "../components/Home";
 import { ActionTypes, AuthStatus } from "../types/authTypes";
 import { MessageType, SearchResult, User } from "../types/userTypes";
@@ -15,6 +14,7 @@ function HomeContainer() {
 	const [results, setResults] = useState<SearchResult[]>([]);
 	const [activeUser, setActiveUser] = useState<User | null>(null);
 	const [messages, setMessages] = useState<MessageType[]>([]);
+	const [messagesLoading, setMessagesLoading] = useState<boolean>(false);
 
 	useEffect(() => {
 		const socket = authInfo.socket;
@@ -23,6 +23,7 @@ function HomeContainer() {
 				"oldMessages",
 				({ messages }: { messages: MessageType[] }) => {
 					setMessages(messages);
+					setMessagesLoading(false);
 				}
 			);
 			socket.on(
@@ -62,12 +63,12 @@ function HomeContainer() {
 	};
 
 	const userOnClick = async (id: string) => {
-		// TODO: fetch last messages of the selected user
 		const oldFriends = authInfo.userInfo.friends;
 		if (oldFriends) {
 			const friend = oldFriends.find((friend) => friend._id === id);
 			if (friend) {
 				setMessages([]);
+				setMessagesLoading(true);
 				authInfo.socket?.emit("getMessages", {
 					roomId: friend.roomId,
 				});
@@ -101,12 +102,8 @@ function HomeContainer() {
 	};
 
 	const logoutUser = async () => {
-		await logout();
 		dispatch({
-			type: ActionTypes.AUTHENTICATE,
-			payload: {
-				loading: true,
-			},
+			type: ActionTypes.LOGOUT,
 		});
 	};
 
@@ -141,6 +138,7 @@ function HomeContainer() {
 			logoutUser={logoutUser}
 			sendMessage={sendMessage}
 			deSelectUser={deSelectUser}
+			messagesLoading={messagesLoading}
 		/>
 	);
 }

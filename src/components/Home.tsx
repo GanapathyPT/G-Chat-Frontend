@@ -14,6 +14,7 @@ import { MessageType, SearchResult } from "../types/userTypes";
 import ChatBox from "./subComponents/ChatBox";
 import SideBar from "./subComponents/SideBar";
 import "../styles/home.scss";
+import { AppLoader } from "./AppLoader";
 
 function Home({
 	loading,
@@ -27,6 +28,7 @@ function Home({
 	logoutUser,
 	sendMessage,
 	deSelectUser,
+	messagesLoading,
 }: {
 	loading: boolean;
 	onResultSelect: (
@@ -45,6 +47,7 @@ function Home({
 	logoutUser: () => Promise<void>;
 	sendMessage: (message: string) => void;
 	deSelectUser: () => void;
+	messagesLoading: boolean;
 }) {
 	const { authInfo } = useContext(AuthContext);
 
@@ -80,11 +83,15 @@ function Home({
 					}`}
 				>
 					{activeUser ? (
-						<ChatBox
-							sendMessage={sendMessage}
-							messages={messages}
-							deSelectUser={deSelectUser}
-						/>
+						messagesLoading ? (
+							<AppLoader />
+						) : (
+							<ChatBox
+								sendMessage={sendMessage}
+								messages={messages}
+								deSelectUser={deSelectUser}
+							/>
+						)
 					) : authInfo.userInfo.friends?.length ? (
 						<div className="full__height center">
 							<Header as="h2" icon>

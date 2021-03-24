@@ -54,9 +54,10 @@ interface AuthContextType {
 enum ActionTypes {
 	REGISTER = 0,
 	LOGIN = 1,
-	AUTHENTICATE = 2,
-	UPDATE_USERINFO = 3,
-	SOCIAL_AUTH = 4,
+	LOGOUT = 2,
+	AUTHENTICATE = 3,
+	UPDATE_USERINFO = 4,
+	SOCIAL_AUTH = 5,
 }
 
 interface Register {
@@ -95,7 +96,17 @@ interface SocialLogin {
 	};
 }
 
-type Actions = Register | Login | Authenticate | UpdateUserInfo | SocialLogin;
+interface Logout {
+	type: ActionTypes.LOGOUT;
+}
+
+type Actions =
+	| Register
+	| Login
+	| Authenticate
+	| UpdateUserInfo
+	| SocialLogin
+	| Logout;
 
 // reducer related
 enum AuthActionType {
@@ -122,7 +133,7 @@ interface Update {
 
 interface SetSocket {
 	type: AuthActionType.SET_SOCKET;
-	payload: SocketIOClient.Socket;
+	payload: SocketIOClient.Socket | null;
 }
 
 type AuthAction = SetUserInfo | SetAuthStatus | Update | SetSocket;
