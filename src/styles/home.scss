@@ -82,17 +82,38 @@
         .chat__message {
             color: #fff;
             margin: 10px;
+            transition: margin 100ms;
             
             span {
-                padding: 5px 20px;
+                // padding: 5px 35px 10px 20px;
+                padding: 5px 20px 5px 20px;
                 background-color: #2185d0;
                 border-radius: 10px;
                 font-weight: bold;
-            }
-        }
+                position: relative;
+                transition: padding 200ms;
 
-        .our__message {
-            text-align: right;
+                small {
+                    position: absolute;
+                    bottom: -3px;
+                    right: 10px;
+                    font-size: 10px;
+                    user-select: none;
+                    display: none;
+                }
+
+                &:hover {
+                    padding: 5px 35px 10px 20px;
+
+                    small {
+                        display: block;
+                    }
+                }
+            }
+
+            &.our__message {
+                text-align: right;
+            }
         }
     }
 }

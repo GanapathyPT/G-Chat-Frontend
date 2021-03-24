@@ -113,6 +113,7 @@ function HomeContainer() {
 				roomId: activeUser?.roomId,
 				author: authInfo.userInfo._id,
 				message,
+				time: new Date(),
 			});
 		}
 	};

@@ -11,6 +11,13 @@ import { AuthContext } from "../../actions/auth/AuthContext";
 import { MessageType } from "../../types/userTypes";
 import "../../styles/home.scss";
 
+const getTime = (date: Date): string => {
+	date = new Date(date);
+	const hours = date.getHours() % 12;
+	const time = date.getMinutes();
+	return `${hours}:${time}`;
+};
+
 function ChatBox({
 	messages,
 	sendMessage,
@@ -26,7 +33,7 @@ function ChatBox({
 
 	useEffect(() => {
 		if (ref && ref.current) ref.current.scrollIntoView();
-	}, [messages, ref]);
+	}, [messages, message, ref]);
 
 	return (
 		<Segment className="chat__box">
@@ -41,12 +48,20 @@ function ChatBox({
 					<Icon className="info__btn" name="info circle" size="big" />
 				}
 				content={
-					<Message
-						warning
-						size="small"
-						header="Not Encrypted"
-						content="messages are not encrypted in this app, don't share any personal info"
-					/>
+					<>
+						<Message
+							warning
+							size="small"
+							header="Not Encrypted"
+							content="messages are not encrypted in this app, don't share any personal info"
+						/>
+						<Message
+							success
+							size="small"
+							header="Auto Delete"
+							content="Messages will be deleted after 24 hours"
+						/>
+					</>
 				}
 			/>
 			<div className="chat__messages__container">
@@ -59,7 +74,10 @@ function ChatBox({
 								: ""
 						}`}
 					>
-						<span>{message.message}</span>
+						<span>
+							{message.message}
+							<small>{getTime(message.timestamp)}</small>
+						</span>
 					</p>
 				))}
 				<div ref={ref} />
