@@ -1,5 +1,6 @@
 import { AuthResponse, UserInfo } from "../../types/authTypes";
 import { User } from "../../types/userTypes";
+import { BASE_URL } from "../config";
 
 const ACCESS_TOKEN = "access-token";
 const REFRESH_TOKEN = "refresh-token";
@@ -21,7 +22,7 @@ const login = async (
 		body: JSON.stringify({ email, password }),
 	};
 
-	const response = await fetch("/api/auth/login", requestOptions);
+	const response = await fetch(BASE_URL + "/auth/login", requestOptions);
 	const data: AuthResponse = await response.json();
 	saveLocalStorage(ACCESS_TOKEN, data.accessToken);
 	saveLocalStorage(REFRESH_TOKEN, data.refreshToken);
@@ -43,7 +44,7 @@ const register = async (
 		body: JSON.stringify({ username, email, password }),
 	};
 
-	const response = await fetch("/api/auth/register", requestOptions);
+	const response = await fetch(BASE_URL + "/auth/register", requestOptions);
 	const data: AuthResponse = await response.json();
 	saveLocalStorage(ACCESS_TOKEN, data.accessToken);
 	saveLocalStorage(REFRESH_TOKEN, data.refreshToken);
@@ -63,7 +64,7 @@ const refreshToken = async (): Promise<boolean> => {
 		},
 		body: JSON.stringify({ refreshToken: token }),
 	};
-	const response = await fetch("/api/auth/refresh", requestOptions);
+	const response = await fetch(BASE_URL + "/auth/refresh", requestOptions);
 	const {
 		error,
 		accessToken,
@@ -88,7 +89,10 @@ const getUserDetails = async (): Promise<UserInfo | null> => {
 				},
 			};
 
-			const response = await fetch("/api/user/friends", requestOptions);
+			const response = await fetch(
+				BASE_URL + "/user/friends",
+				requestOptions
+			);
 			const friendsData: { result: User[] } = await response.json();
 
 			return {
@@ -113,7 +117,7 @@ const logout = async (): Promise<void> => {
 			Authorization: `Bearer ${token}`,
 		},
 	};
-	await fetch("/api/auth/logout", requestOptions);
+	await fetch(BASE_URL + "/auth/logout", requestOptions);
 	localStorage.removeItem("access-token");
 	localStorage.removeItem("refresh-token");
 };
@@ -128,7 +132,7 @@ const googleAuth = async (id: string): Promise<AuthResponse> => {
 		body: JSON.stringify({ token: id }),
 	};
 
-	const response = await fetch("/api/auth/googleAuth", requestOptions);
+	const response = await fetch(BASE_URL + "/auth/googleAuth", requestOptions);
 	const data: AuthResponse = await response.json();
 	saveLocalStorage(ACCESS_TOKEN, data.accessToken);
 	saveLocalStorage(REFRESH_TOKEN, data.refreshToken);
