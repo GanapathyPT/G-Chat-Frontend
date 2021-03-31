@@ -60,7 +60,11 @@ function Register({ registerUser, onSuccess }: Props) {
 						iconPosition="left"
 						value={password}
 						onChange={(e) => setPassword(e.target.value)}
-						error={error.password}
+						error={
+							(password === password.toLowerCase() &&
+								"must contain a upper case") ||
+							error.password
+						}
 					/>
 					<Divider horizontal>or</Divider>
 					<Form.Field className="btn__center">
@@ -79,7 +83,7 @@ function Register({ registerUser, onSuccess }: Props) {
 				</Form>
 			</Card>
 			<small>
-				Already have a account? <Link to="/login">SignUp</Link>
+				Already have a account? <Link to="/login">Login</Link>
 			</small>
 		</div>
 	);
