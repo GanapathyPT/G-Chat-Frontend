@@ -65,10 +65,6 @@ const customAuthDispatch = (dispatch: Dispatch<AuthAction>) => async (
 ): Promise<[AuthError] | undefined> => {
 	switch (action.type) {
 		case ActionTypes.REGISTER: {
-			dispatch({
-				type: AuthActionType.SET_AUTHSTATUS,
-				payload: AuthStatus.AUTHENTICATION_LOADING,
-			});
 			const { email, password, username } = action.payload;
 			const { errors } = await register(username, email, password);
 			if (errors === null) {
@@ -103,10 +99,6 @@ const customAuthDispatch = (dispatch: Dispatch<AuthAction>) => async (
 		}
 
 		case ActionTypes.LOGIN: {
-			dispatch({
-				type: AuthActionType.SET_AUTHSTATUS,
-				payload: AuthStatus.AUTHENTICATION_LOADING,
-			});
 			const { email, password } = action.payload;
 			const { errors } = await login(email, password);
 			if (errors === null) {
