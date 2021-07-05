@@ -8,13 +8,13 @@ import {
 	Segment,
 } from "semantic-ui-react";
 import { AuthContext } from "../../actions/auth/AuthContext";
-import { MessageType } from "../../types/userTypes";
 import "../../styles/home.scss";
+import { Message as MessageType } from "../../types/userTypes";
 
-const getTime = (date: Date): string => {
-	date = new Date(date);
-	const hours = date.getHours() % 12;
-	const time = date.getMinutes();
+const getTime = (date: string): string => {
+	const givenDate = new Date(date);
+	const hours = givenDate.getHours() % 12;
+	const time = givenDate.getMinutes();
 	return `${hours}:${time}`;
 };
 
@@ -67,16 +67,16 @@ function ChatBox({
 			<div className="chat__messages__container">
 				{messages.map((message) => (
 					<p
-						key={message._id}
+						key={message.id}
 						className={`chat__message ${
-							message.author === authInfo.userInfo._id
+							message.author.id === authInfo.userInfo.id
 								? "our__message"
 								: ""
 						}`}
 					>
 						<span>
 							{message.message}
-							<small>{getTime(message.timestamp)}</small>
+							<small>{getTime(message.createdAt)}</small>
 						</span>
 					</p>
 				))}

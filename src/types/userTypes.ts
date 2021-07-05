@@ -1,21 +1,21 @@
-interface User {
-	_id: string;
+export interface User {
+	id: string;
 	email: string;
 	username: string;
-	roomId?: string;
+	online: boolean;
+	profilePic?: string;
 }
 
-interface SearchResult {
-	_id: string;
-	title: string;
-	description: string;
-}
-
-interface MessageType {
-	_id?: string;
-	author: string;
+export interface Message {
+	id: string;
+	author: User;
 	message: string;
-	timestamp: Date;
+	createdAt: string;
 }
 
-export type { User, SearchResult, MessageType };
+export interface Room {
+	id: string;
+	name: string;
+	users: User[];
+	messages: Message[];
+}

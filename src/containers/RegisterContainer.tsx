@@ -6,7 +6,7 @@ import {
 import { Redirect } from "react-router";
 import { AuthContext } from "../actions/auth/AuthContext";
 import { Register } from "../components/Register";
-import { ActionTypes, AuthStatus, RegisterErrors } from "../types/authTypes";
+import { AuthActionType, AuthStatus, RegisterErrors } from "../types/authTypes";
 
 function RegisterContainer() {
 	const { authInfo, dispatch } = useContext(AuthContext);
@@ -20,7 +20,7 @@ function RegisterContainer() {
 		) => {
 			setError({});
 			const errors = await dispatch({
-				type: ActionTypes.REGISTER,
+				type: AuthActionType.REGISTER,
 				payload: {
 					username,
 					email,
@@ -56,7 +56,7 @@ function RegisterContainer() {
 		// console.log(response);
 		// googleAuth(gResponse.tokenId);
 		dispatch({
-			type: ActionTypes.SOCIAL_AUTH,
+			type: AuthActionType.SOCIAL_AUTH,
 			payload: {
 				token: gResponse.tokenId,
 			},

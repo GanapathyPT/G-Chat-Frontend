@@ -12,7 +12,7 @@ import {
 	Redirect,
 } from "react-router-dom";
 import { AuthContext } from "./actions/auth/AuthContext";
-import { ActionTypes, AuthStatus } from "./types/authTypes";
+import { AuthActionType, AuthStatus } from "./types/authTypes";
 import { AppLoader } from "./components/AppLoader";
 import { LoginContainer } from "./containers/LoginContainer";
 import { RegisterContainer } from "./containers/RegisterContainer";
@@ -24,7 +24,7 @@ const App = () => {
 	useEffect(() => {
 		const authenticate = (showLoading = false) => {
 			dispatch({
-				type: ActionTypes.AUTHENTICATE,
+				type: AuthActionType.AUTHENTICATE,
 				payload: {
 					loading: showLoading,
 				},

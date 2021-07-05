@@ -6,7 +6,7 @@ import {
 import { Redirect } from "react-router";
 import { AuthContext } from "../actions/auth/AuthContext";
 import { Login } from "../components/Login";
-import { ActionTypes, AuthStatus, LoginErrors } from "../types/authTypes";
+import { AuthActionType, AuthStatus, LoginErrors } from "../types/authTypes";
 
 function LoginContainer() {
 	const { authInfo, dispatch } = useContext(AuthContext);
@@ -19,7 +19,7 @@ function LoginContainer() {
 		) => {
 			setError({});
 			const errors = await dispatch({
-				type: ActionTypes.LOGIN,
+				type: AuthActionType.LOGIN,
 				payload: {
 					email,
 					password,
@@ -48,10 +48,8 @@ function LoginContainer() {
 		response: GoogleLoginResponse | GoogleLoginResponseOffline
 	) => {
 		const gResponse = response as GoogleLoginResponse;
-		// console.log(response);
-		// googleAuth(gResponse.tokenId);
 		dispatch({
-			type: ActionTypes.SOCIAL_AUTH,
+			type: AuthActionType.SOCIAL_AUTH,
 			payload: {
 				token: gResponse.tokenId,
 			},

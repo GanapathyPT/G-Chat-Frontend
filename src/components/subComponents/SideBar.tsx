@@ -1,15 +1,8 @@
-import { MouseEvent, useContext } from "react";
-import {
-	Dropdown,
-	Image,
-	List,
-	Search,
-	SearchProps,
-	SearchResultData,
-} from "semantic-ui-react";
+import { useContext } from "react";
+import { Dropdown, Image, List, Search } from "semantic-ui-react";
 import { AuthContext } from "../../actions/auth/AuthContext";
-import { UserInfo } from "../../types/authTypes";
-import { SearchResult } from "../../types/userTypes";
+import { useUserSearch } from "../../actions/users/useUserSearch";
+import { Room } from "../../types/userTypes";
 
 const usersAvatar = [
 	"rachel.png",
@@ -23,45 +16,41 @@ const usersAvatar = [
 	"daniel.jpg",
 ];
 const getRandomAvatar = () =>
+	"https://react.semantic-ui.com/images/avatar/small/" +
 	usersAvatar[Math.floor(Math.random() * usersAvatar.length)];
 
 function SideBar({
-	loading,
-	onResultSelect,
-	onSearchChange,
-	results,
-	value,
-	activeUser,
-	userOnClick,
+	activeRoom,
+	rooms,
 	logoutUser,
+	selectRoom,
+	addNewRoom,
 }: {
-	loading: boolean;
-	onResultSelect: (
-		e: MouseEvent<HTMLDivElement>,
-		data: SearchResultData
-	) => Promise<void>;
-	onSearchChange: (
-		e: MouseEvent<HTMLElement>,
-		data: SearchProps
-	) => Promise<void>;
-	results: SearchResult[];
-	value: string;
-	activeUser: UserInfo | null;
-	userOnClick: (id: string) => void;
+	activeRoom: Room | null;
+	rooms: Room[];
 	logoutUser: () => Promise<void>;
+	selectRoom: (id: string) => void;
+	addNewRoom: (room: Room) => void;
 }) {
 	const { authInfo } = useContext(AuthContext);
+	const {
+		onSearchChange,
+		onResultSelect,
+		searchLoading,
+		searchResult,
+		searchText,
+	} = useUserSearch(rooms, addNewRoom);
 
 	return (
 		<div>
 			<div className="search__menu">
 				<Search
 					placeholder="Search User . . ."
-					loading={loading}
+					loading={searchLoading}
 					onResultSelect={onResultSelect}
 					onSearchChange={onSearchChange}
-					results={results}
-					value={value}
+					results={searchResult}
+					value={searchText}
 				/>
 				<Dropdown
 					simple
@@ -77,20 +66,29 @@ function SideBar({
 				</Dropdown>
 			</div>
 			<List animated celled size="big" className="friends__list">
-				{authInfo.userInfo.friends?.map((friend) => (
+				{rooms.map((room) => (
 					<List.Item
-						key={friend._id}
-						active={activeUser?._id === friend._id}
+						key={room.id}
+						active={activeRoom?.id === room.id}
 						className="list__item"
-						onClick={() => userOnClick(friend._id)}
+						onClick={() => selectRoom(room.id)}
 					>
 						<Image
 							avatar
-							src={`https://react.semantic-ui.com/images/avatar/small/${getRandomAvatar()}`}
+							src={
+								authInfo.userInfo.profilePic
+									? authInfo.userInfo.profilePic
+									: getRandomAvatar()
+							}
 						/>
 						<List.Content>
-							<List.Header>{friend.username}</List.Header>
-							<List.Description>{friend.email}</List.Description>
+							<List.Header>{room.name}</List.Header>
+							<List.Description>
+								{room.messages.length > 0
+									? room.messages[room.messages.length - 1]
+											.message
+									: "Start a New Chat"}
+							</List.Description>
 						</List.Content>
 					</List.Item>
 				))}

@@ -1,5 +1,3 @@
-import { User } from "./userTypes";
-
 interface AuthError {
 	value?: string;
 	msg: string;
@@ -25,10 +23,10 @@ interface LoginErrors {
 }
 
 interface UserInfo {
-	_id?: string;
+	id?: string;
 	username?: string;
 	email?: string;
-	friends?: User[];
+	profilePic?: string;
 }
 
 // Reducer and context related
@@ -41,27 +39,31 @@ enum AuthStatus {
 interface AuthInfo {
 	authStatus: AuthStatus;
 	userInfo: UserInfo;
-	socket: SocketIOClient.Socket | null;
 }
 
 interface AuthContextType {
 	authInfo: AuthInfo;
-	dispatch: (action: Actions) => Promise<AuthError[] | undefined>;
+	dispatch: (action: AuthActions) => Promise<AuthError[] | undefined>;
 }
 
 // actions related
-
-enum ActionTypes {
+enum AuthActionType {
+	// generic action types
 	REGISTER = 0,
 	LOGIN = 1,
 	LOGOUT = 2,
 	AUTHENTICATE = 3,
 	UPDATE_USERINFO = 4,
 	SOCIAL_AUTH = 5,
+
+	// reducer action types
+	SET_USERINFO = 6,
+	SET_AUTHSTATUS = 7,
 }
 
+// reducer actions
 interface Register {
-	type: ActionTypes.REGISTER;
+	type: AuthActionType.REGISTER;
 	payload: {
 		username: string;
 		email: string;
@@ -70,7 +72,7 @@ interface Register {
 }
 
 interface Login {
-	type: ActionTypes.LOGIN;
+	type: AuthActionType.LOGIN;
 	payload: {
 		email: string;
 		password: string;
@@ -78,42 +80,27 @@ interface Login {
 }
 
 interface Authenticate {
-	type: ActionTypes.AUTHENTICATE;
+	type: AuthActionType.AUTHENTICATE;
 	payload: {
 		loading: boolean;
 	};
 }
 
 interface UpdateUserInfo {
-	type: ActionTypes.UPDATE_USERINFO;
+	type: AuthActionType.UPDATE_USERINFO;
 	payload: Partial<UserInfo>;
 }
 
 interface SocialLogin {
-	type: ActionTypes.SOCIAL_AUTH;
+	type: AuthActionType.SOCIAL_AUTH;
 	payload: {
 		token: string;
 	};
 }
 
+// generic actions
 interface Logout {
-	type: ActionTypes.LOGOUT;
-}
-
-type Actions =
-	| Register
-	| Login
-	| Authenticate
-	| UpdateUserInfo
-	| SocialLogin
-	| Logout;
-
-// reducer related
-enum AuthActionType {
-	SET_USERINFO = 0,
-	SET_AUTHSTATUS = 1,
-	UPDATE_USERINFO = 2,
-	SET_SOCKET = 4,
+	type: AuthActionType.LOGOUT;
 }
 
 interface SetUserInfo {
@@ -131,12 +118,18 @@ interface Update {
 	payload: Partial<UserInfo>;
 }
 
-interface SetSocket {
-	type: AuthActionType.SET_SOCKET;
-	payload: SocketIOClient.Socket | null;
-}
-
-type AuthAction = SetUserInfo | SetAuthStatus | Update | SetSocket;
+type AuthActions =
+	// generic actions
+	| Register
+	| Login
+	| Authenticate
+	| UpdateUserInfo
+	| SocialLogin
+	| Logout
+	// reducer actions
+	| SetUserInfo
+	| SetAuthStatus
+	| Update;
 
 export type {
 	AuthResponse,
@@ -145,9 +138,8 @@ export type {
 	AuthContextType,
 	UserInfo,
 	AuthInfo,
-	AuthAction,
-	Actions,
 	AuthError,
+	AuthActions,
 };
 
-export { AuthStatus, AuthActionType, ActionTypes };
+export { AuthStatus, AuthActionType };

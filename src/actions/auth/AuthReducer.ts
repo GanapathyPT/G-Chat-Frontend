@@ -1,12 +1,10 @@
 import { Dispatch } from "react";
 import {
 	AuthInfo,
-	AuthAction,
 	AuthStatus,
-	AuthActionType,
-	Actions,
-	ActionTypes,
 	AuthError,
+	AuthActions,
+	AuthActionType,
 } from "../../types/authTypes";
 import {
 	getUserDetails,
@@ -16,17 +14,13 @@ import {
 	refreshToken,
 	register,
 } from "./authActions";
-import { connect } from "socket.io-client";
-
-const SOCKET_URL = process.env.REACT_APP_SOCKET_URL as string;
 
 const initialState: AuthInfo = {
 	authStatus: AuthStatus.NOT_AUTHENTICATED,
 	userInfo: {},
-	socket: null,
 };
 
-const authReducer = (state: AuthInfo, action: AuthAction) => {
+const authReducer = (state: AuthInfo, action: AuthActions) => {
 	switch (action.type) {
 		case AuthActionType.SET_USERINFO:
 			return {
@@ -49,220 +43,173 @@ const authReducer = (state: AuthInfo, action: AuthAction) => {
 				},
 			};
 
-		case AuthActionType.SET_SOCKET:
-			return {
-				...state,
-				socket: action.payload,
-			};
-
 		default:
 			return state;
 	}
 };
 
-const customAuthDispatch = (dispatch: Dispatch<AuthAction>) => async (
-	action: Actions
-): Promise<[AuthError] | undefined> => {
-	switch (action.type) {
-		case ActionTypes.REGISTER: {
-			const { email, password, username } = action.payload;
-			const { errors } = await register(username, email, password);
-			if (errors === null) {
-				const userInfo = await getUserDetails();
-				if (userInfo !== null) {
-					dispatch({
-						type: AuthActionType.SET_USERINFO,
-						payload: userInfo,
-					});
-					dispatch({
-						type: AuthActionType.SET_AUTHSTATUS,
-						payload: AuthStatus.AUTHENTICATED,
-					});
-					const socket = connect(SOCKET_URL);
-					dispatch({
-						type: AuthActionType.SET_SOCKET,
-						payload: socket,
-					});
-				} else
-					dispatch({
-						type: AuthActionType.SET_AUTHSTATUS,
-						payload: AuthStatus.NOT_AUTHENTICATED,
-					});
-			} else {
-				dispatch({
-					type: AuthActionType.SET_AUTHSTATUS,
-					payload: AuthStatus.NOT_AUTHENTICATED,
-				});
-				return errors;
-			}
-			return;
-		}
-
-		case ActionTypes.LOGIN: {
-			const { email, password } = action.payload;
-			const { errors } = await login(email, password);
-			if (errors === null) {
-				const userInfo = await getUserDetails();
-				if (userInfo !== null) {
-					dispatch({
-						type: AuthActionType.SET_USERINFO,
-						payload: userInfo,
-					});
-					dispatch({
-						type: AuthActionType.SET_AUTHSTATUS,
-						payload: AuthStatus.AUTHENTICATED,
-					});
-					const socket = connect(SOCKET_URL);
-					dispatch({
-						type: AuthActionType.SET_SOCKET,
-						payload: socket,
-					});
-				} else
-					dispatch({
-						type: AuthActionType.SET_AUTHSTATUS,
-						payload: AuthStatus.NOT_AUTHENTICATED,
-					});
-			} else {
-				dispatch({
-					type: AuthActionType.SET_AUTHSTATUS,
-					payload: AuthStatus.NOT_AUTHENTICATED,
-				});
-				return errors;
-			}
-			return;
-		}
-
-		case ActionTypes.AUTHENTICATE: {
-			const { loading } = action.payload;
-			loading &&
-				dispatch({
-					type: AuthActionType.SET_AUTHSTATUS,
-					payload: AuthStatus.AUTHENTICATION_LOADING,
-				});
-
-			const authenticated = await refreshToken();
-			if (authenticated) {
-				const userInfo = await getUserDetails();
-				if (userInfo !== null) {
-					dispatch({
-						type: AuthActionType.SET_USERINFO,
-						payload: userInfo,
-					});
-					if (loading) {
-						const socket = connect(SOCKET_URL);
+const customAuthDispatch =
+	(dispatch: Dispatch<AuthActions>) =>
+	async (action: AuthActions): Promise<[AuthError] | undefined> => {
+		switch (action.type) {
+			case AuthActionType.REGISTER: {
+				const { email, password, username } = action.payload;
+				const { errors } = await register(username, email, password);
+				if (errors === null) {
+					const userInfo = await getUserDetails();
+					if (userInfo !== null) {
 						dispatch({
-							type: AuthActionType.SET_SOCKET,
-							payload: socket,
+							type: AuthActionType.SET_USERINFO,
+							payload: userInfo,
+						});
+						dispatch({
+							type: AuthActionType.SET_AUTHSTATUS,
+							payload: AuthStatus.AUTHENTICATED,
+						});
+					} else
+						dispatch({
+							type: AuthActionType.SET_AUTHSTATUS,
+							payload: AuthStatus.NOT_AUTHENTICATED,
+						});
+				} else {
+					dispatch({
+						type: AuthActionType.SET_AUTHSTATUS,
+						payload: AuthStatus.NOT_AUTHENTICATED,
+					});
+					return errors;
+				}
+				return;
+			}
+
+			case AuthActionType.LOGIN: {
+				const { email, password } = action.payload;
+				const { errors } = await login(email, password);
+				if (errors === null) {
+					const userInfo = await getUserDetails();
+					if (userInfo !== null) {
+						dispatch({
+							type: AuthActionType.SET_USERINFO,
+							payload: userInfo,
+						});
+						dispatch({
+							type: AuthActionType.SET_AUTHSTATUS,
+							payload: AuthStatus.AUTHENTICATED,
+						});
+					} else
+						dispatch({
+							type: AuthActionType.SET_AUTHSTATUS,
+							payload: AuthStatus.NOT_AUTHENTICATED,
+						});
+				} else {
+					dispatch({
+						type: AuthActionType.SET_AUTHSTATUS,
+						payload: AuthStatus.NOT_AUTHENTICATED,
+					});
+					return errors;
+				}
+				return;
+			}
+
+			case AuthActionType.AUTHENTICATE: {
+				const { loading } = action.payload;
+				loading &&
+					dispatch({
+						type: AuthActionType.SET_AUTHSTATUS,
+						payload: AuthStatus.AUTHENTICATION_LOADING,
+					});
+
+				const authenticated = await refreshToken();
+				if (authenticated) {
+					const userInfo = await getUserDetails();
+					if (userInfo !== null) {
+						dispatch({
+							type: AuthActionType.SET_USERINFO,
+							payload: userInfo,
 						});
 					}
 				}
-			}
-			dispatch({
-				type: AuthActionType.SET_AUTHSTATUS,
-				payload: authenticated
-					? AuthStatus.AUTHENTICATED
-					: AuthStatus.NOT_AUTHENTICATED,
-			});
-
-			loading &&
 				dispatch({
 					type: AuthActionType.SET_AUTHSTATUS,
 					payload: authenticated
 						? AuthStatus.AUTHENTICATED
 						: AuthStatus.NOT_AUTHENTICATED,
 				});
-			return;
-		}
+				return;
+			}
 
-		case ActionTypes.LOGOUT: {
-			dispatch({
-				type: AuthActionType.SET_AUTHSTATUS,
-				payload: AuthStatus.AUTHENTICATION_LOADING,
-			});
-			await logout();
-			dispatch({
-				type: AuthActionType.SET_USERINFO,
-				payload: {},
-			});
-			dispatch({
-				type: AuthActionType.SET_AUTHSTATUS,
-				payload: AuthStatus.NOT_AUTHENTICATED,
-			});
-			dispatch({
-				type: AuthActionType.SET_SOCKET,
-				payload: null,
-			});
-			return;
-		}
-
-		case ActionTypes.UPDATE_USERINFO: {
-			const { email, username, friends } = action.payload;
-			if (email)
+			case AuthActionType.LOGOUT: {
 				dispatch({
-					type: AuthActionType.UPDATE_USERINFO,
-					payload: {
-						email,
-					},
+					type: AuthActionType.SET_AUTHSTATUS,
+					payload: AuthStatus.AUTHENTICATION_LOADING,
 				});
-			else if (username)
+				await logout();
 				dispatch({
-					type: AuthActionType.UPDATE_USERINFO,
-					payload: {
-						username,
-					},
+					type: AuthActionType.SET_USERINFO,
+					payload: {},
 				});
-			else if (friends)
-				dispatch({
-					type: AuthActionType.UPDATE_USERINFO,
-					payload: {
-						friends,
-					},
-				});
-			return;
-		}
-
-		case ActionTypes.SOCIAL_AUTH: {
-			dispatch({
-				type: AuthActionType.SET_AUTHSTATUS,
-				payload: AuthStatus.AUTHENTICATION_LOADING,
-			});
-
-			const { token } = action.payload;
-			const { errors } = await googleAuth(token);
-			if (errors === null) {
-				const userInfo = await getUserDetails();
-				if (userInfo !== null) {
-					dispatch({
-						type: AuthActionType.SET_USERINFO,
-						payload: userInfo,
-					});
-					dispatch({
-						type: AuthActionType.SET_AUTHSTATUS,
-						payload: AuthStatus.AUTHENTICATED,
-					});
-					const socket = connect(SOCKET_URL);
-					dispatch({
-						type: AuthActionType.SET_SOCKET,
-						payload: socket,
-					});
-				} else
-					dispatch({
-						type: AuthActionType.SET_AUTHSTATUS,
-						payload: AuthStatus.NOT_AUTHENTICATED,
-					});
-			} else {
 				dispatch({
 					type: AuthActionType.SET_AUTHSTATUS,
 					payload: AuthStatus.NOT_AUTHENTICATED,
 				});
-				return errors;
+				return;
 			}
-			return;
-		}
 
-		default:
-			return;
-	}
-};
+			case AuthActionType.UPDATE_USERINFO: {
+				const { email, username } = action.payload;
+				if (email)
+					dispatch({
+						type: AuthActionType.UPDATE_USERINFO,
+						payload: {
+							email,
+						},
+					});
+				else if (username)
+					dispatch({
+						type: AuthActionType.UPDATE_USERINFO,
+						payload: {
+							username,
+						},
+					});
+				return;
+			}
+
+			case AuthActionType.SOCIAL_AUTH: {
+				dispatch({
+					type: AuthActionType.SET_AUTHSTATUS,
+					payload: AuthStatus.AUTHENTICATION_LOADING,
+				});
+
+				const { token } = action.payload;
+				const { errors } = await googleAuth(token);
+				if (errors === null) {
+					const userInfo = await getUserDetails();
+					if (userInfo !== null) {
+						dispatch({
+							type: AuthActionType.SET_USERINFO,
+							payload: userInfo,
+						});
+						dispatch({
+							type: AuthActionType.SET_AUTHSTATUS,
+							payload: AuthStatus.AUTHENTICATED,
+						});
+					} else
+						dispatch({
+							type: AuthActionType.SET_AUTHSTATUS,
+							payload: AuthStatus.NOT_AUTHENTICATED,
+						});
+				} else {
+					dispatch({
+						type: AuthActionType.SET_AUTHSTATUS,
+						payload: AuthStatus.NOT_AUTHENTICATED,
+					});
+					return errors;
+				}
+				return;
+			}
+
+			default:
+				dispatch(action);
+		}
+	};
 
 export { authReducer, initialState, customAuthDispatch };
