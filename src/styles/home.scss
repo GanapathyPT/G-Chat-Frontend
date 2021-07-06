@@ -30,10 +30,27 @@
                 padding-top: 20px !important;
                 padding-bottom: 20px !important;
                 cursor: pointer;
+                display: flex;
+
+                .item__description {
+                    font-size: 1rem;
+                    color: #555;
+                }
         
                 &.active {
                     border-right: 5px solid #2185d0;
                     background-color: #2185d011;
+                }
+
+                .profile__pic {
+                    position: relative;
+                    margin-right: 12px;
+
+                    .label {
+                        top: 0;
+                        left: unset;
+                        right: 0;
+                    }
                 }
             }
         }

@@ -1,7 +1,8 @@
 import { useContext } from "react";
-import { Dropdown, Image, List, Search } from "semantic-ui-react";
+import { Dropdown, Image, List, Search, Label } from "semantic-ui-react";
 import { AuthContext } from "../../actions/auth/AuthContext";
 import { useUserSearch } from "../../actions/users/useUserSearch";
+import { UserInfo } from "../../types/authTypes";
 import { Room } from "../../types/userTypes";
 
 const usersAvatar = [
@@ -18,6 +19,9 @@ const usersAvatar = [
 const getRandomAvatar = () =>
 	"https://react.semantic-ui.com/images/avatar/small/" +
 	usersAvatar[Math.floor(Math.random() * usersAvatar.length)];
+const getOnlineStatus = (room: Room, userInfo: UserInfo): boolean =>
+	room.isPersonal &&
+	room.users.some((user) => user.id !== userInfo.id && user.online);
 
 function SideBar({
 	activeRoom,
@@ -73,21 +77,26 @@ function SideBar({
 						className="list__item"
 						onClick={() => selectRoom(room.id)}
 					>
-						<Image
-							avatar
-							src={
-								authInfo.userInfo.profilePic
-									? authInfo.userInfo.profilePic
-									: getRandomAvatar()
-							}
-						/>
+						<div className="profile__pic">
+							<Image
+								avatar
+								src={
+									authInfo.userInfo.profilePic
+										? authInfo.userInfo.profilePic
+										: getRandomAvatar()
+								}
+							/>
+							{getOnlineStatus(room, authInfo.userInfo) ? (
+								<Label circular empty color="green" floating />
+							) : null}
+						</div>
 						<List.Content>
 							<List.Header>{room.name}</List.Header>
-							<List.Description>
+							<List.Description className="item__description">
 								{room.messages.length > 0
 									? room.messages[room.messages.length - 1]
 											.message
-									: "Start a New Chat"}
+									: "..........."}
 							</List.Description>
 						</List.Content>
 					</List.Item>

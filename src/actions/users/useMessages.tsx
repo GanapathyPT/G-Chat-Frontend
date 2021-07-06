@@ -1,8 +1,10 @@
 import { useEffect } from "react";
+import { useContext } from "react";
 import { useRef, useState } from "react";
 import { connect } from "socket.io-client";
 import { Message, Room, User } from "../../types/userTypes";
 import { ACCESS_TOKEN } from "../auth/authActions";
+import { AuthContext } from "../auth/AuthContext";
 import { SOCKET_URL } from "../config";
 import { getRooms } from "./usersActions";
 
@@ -13,6 +15,8 @@ interface RoomsCache {
 enum SocketListenerTypes {
 	NEW_MESSAGE = "NEW_MESSAGE",
 	ALERT = "ALERT",
+	USER_ONLINE = "USER_ONLINE",
+	USER_OFFLINE = "USER_OFFLINE",
 }
 
 enum SocketEmitTypes {
@@ -32,6 +36,7 @@ const socket = connect(SOCKET_URL, {
 });
 
 export const useMessages = () => {
+	const { authInfo } = useContext(AuthContext);
 	const cache = useRef<RoomsCache>({});
 	const [rooms, setRooms] = useState<Room[]>([]);
 	const [activeRoom, setActiveRoom] = useState<Room | null>(null);
@@ -59,8 +64,20 @@ export const useMessages = () => {
 	}, []);
 
 	useEffect(() => {
+		const changeUserActiveStatus = (userId: string, status: boolean) => {
+			if (userId === authInfo.userInfo.id) return;
+			console.log("user status changed", userId, status);
+			setRooms((oldRooms) =>
+				oldRooms.map((room) => ({
+					...room,
+					users: room.users.map((user) =>
+						user.id === userId ? { ...user, online: status } : user
+					),
+				}))
+			);
+		};
+
 		socket.on(SocketListenerTypes.NEW_MESSAGE, (newMessage: Message) => {
-			console.log("got new message", newMessage);
 			setActiveRoom((room) => {
 				const roomCopy = JSON.parse(JSON.stringify(room));
 				roomCopy.messages.push(newMessage);
@@ -70,7 +87,13 @@ export const useMessages = () => {
 		socket.on(SocketListenerTypes.ALERT, (data: AlertType) =>
 			alert(data.msg)
 		);
-	}, []);
+		socket.on(SocketListenerTypes.USER_ONLINE, (userId: string) =>
+			changeUserActiveStatus(userId, true)
+		);
+		socket.on(SocketListenerTypes.USER_OFFLINE, (userId: string) =>
+			changeUserActiveStatus(userId, false)
+		);
+	}, [authInfo]);
 
 	const selectRoom = (id: string) => {
 		const room = rooms.find((room) => room.id === id);
@@ -84,7 +107,6 @@ export const useMessages = () => {
 				message,
 				createdAt: new Date(),
 			});
-			console.log("message event emitted");
 		}
 	};
 

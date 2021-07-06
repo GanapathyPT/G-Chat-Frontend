@@ -18,4 +18,5 @@ export interface Room {
 	name: string;
 	users: User[];
 	messages: Message[];
+	isPersonal: boolean;
 }
