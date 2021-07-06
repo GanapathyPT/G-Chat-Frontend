@@ -128,6 +128,7 @@ export const useMessages = () => {
 			setRooms([]);
 			setActiveRoom(undefined);
 			cache.current = {};
+			getSocket()?.disconnect();
 		}
 	}, [authInfo.authStatus]);
 
