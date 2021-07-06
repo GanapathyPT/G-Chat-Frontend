@@ -32,6 +32,7 @@ export const useUserSearch = (
 		const users = await getUser(query, cancelTokenSource.token);
 		return users
 			.filter((user) => user.id !== userInfo.id)
+			.filter((user) => rooms.some((room) => room.users.includes(user)))
 			.map((user) => ({
 				id: user.id,
 				title: user.username,
@@ -56,10 +57,11 @@ export const useUserSearch = (
 		event: MouseEvent<HTMLDivElement>,
 		data: SearchResultData
 	) => {
-		const room = rooms.find((room) => room.id === data.result.id);
+		const room = rooms.find((room) => room.users.includes(data.result.id));
+		console.log(data);
 		if (room === undefined) {
-			const room = await addFriend(data.result.id);
-			addNewRoom(room);
+			const newRoom = await addFriend(data.result.id);
+			addNewRoom(newRoom);
 		}
 		setSearchText("");
 	};
