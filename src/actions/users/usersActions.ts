@@ -1,12 +1,19 @@
+import { CancelToken } from "axios";
 import { Room, User } from "../../types/userTypes";
 import { getRequestInstance } from "../config";
 
-export const getUser = async (query: string): Promise<User[]> => {
+export const getUser = async (
+	query: string,
+	cancelToken?: CancelToken
+): Promise<User[]> => {
 	const response = await getRequestInstance().get<{ result: User[] }>(
 		"user/get-user?" +
 			new URLSearchParams({
 				q: query,
-			})
+			}),
+		{
+			cancelToken,
+		}
 	);
 	const result = response.data.result;
 	return result;

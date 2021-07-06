@@ -1,3 +1,4 @@
+import axios, { CancelTokenSource } from "axios";
 import { useContext, useState, MouseEvent } from "react";
 import { SearchProps, SearchResultData } from "semantic-ui-react";
 import { Room } from "../../types/userTypes";
@@ -9,6 +10,9 @@ export interface SearchResult {
 	title: string;
 	description?: string;
 }
+
+// cancel token source variable
+let cancelTokenSource: CancelTokenSource | undefined;
 
 export const useUserSearch = (
 	rooms: Room[],
@@ -22,7 +26,10 @@ export const useUserSearch = (
 	const searchUser = async (query: string) => {
 		const { userInfo } = authInfo;
 
-		const users = await getUser(query);
+		// if canceltoken is there then cacel all the pending request
+		if (cancelTokenSource !== undefined) cancelTokenSource.cancel();
+		cancelTokenSource = axios.CancelToken.source();
+		const users = await getUser(query, cancelTokenSource.token);
 		return users
 			.filter((user) => user.id !== userInfo.id)
 			.map((user) => ({
