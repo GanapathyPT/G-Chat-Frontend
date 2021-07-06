@@ -7,7 +7,7 @@ export const getRequestInstance = () => {
 	const token = localStorage.getItem(ACCESS_TOKEN);
 	return axios.create({
 		baseURL: BASE_URL,
-		timeout: 1000,
+		timeout: 5000,
 		headers: {
 			Authorization: `Bearer ${token}`,
 		},
