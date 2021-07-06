@@ -14,7 +14,7 @@ const login = async (
 	password: string
 ): Promise<AuthResponse> => {
 	const data = await (
-		await axios.post<AuthResponse>(BASE_URL + "/auth/login", {
+		await axios.post<AuthResponse>(BASE_URL + "auth/login", {
 			email,
 			password,
 		})
@@ -31,7 +31,7 @@ const register = async (
 	password: string
 ): Promise<AuthResponse> => {
 	const data = await (
-		await axios.post<AuthResponse>(BASE_URL + "/auth/register", {
+		await axios.post<AuthResponse>(BASE_URL + "auth/register", {
 			username,
 			email,
 			password,
@@ -49,7 +49,7 @@ const refreshToken = async (): Promise<boolean> => {
 	const response = await getRequestInstance().post<{
 		error?: string;
 		accessToken?: string;
-	}>("/auth/refresh", { refreshToken: token });
+	}>("auth/refresh", { refreshToken: token });
 
 	const { error, accessToken } = response.data;
 	setValuesLocal(ACCESS_TOKEN, accessToken);
@@ -76,14 +76,14 @@ const getUserDetails = async (): Promise<UserInfo | null> => {
 };
 
 const logout = async (): Promise<void> => {
-	await getRequestInstance().get("/auth/logout");
+	await getRequestInstance().get("auth/logout");
 	localStorage.removeItem(ACCESS_TOKEN);
 	localStorage.removeItem(REFRESH_TOKEN);
 };
 
 const googleAuth = async (id: string): Promise<AuthResponse> => {
 	const response = await getRequestInstance().post<AuthResponse>(
-		"/auth/googleAuth",
+		"auth/googleAuth",
 		{ token: id }
 	);
 	const data: AuthResponse = response.data;
