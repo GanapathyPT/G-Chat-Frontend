@@ -1,7 +1,8 @@
 import { useEffect } from "react";
 import { useContext } from "react";
 import { useRef, useState } from "react";
-import { connect } from "socket.io-client";
+import { connect, Socket } from "socket.io-client";
+import { AuthStatus } from "../../types/authTypes";
 import { Message, Room, User } from "../../types/userTypes";
 import { ACCESS_TOKEN } from "../auth/authActions";
 import { AuthContext } from "../auth/AuthContext";
@@ -29,17 +30,28 @@ interface AlertType {
 	msg: string;
 }
 
-const socket = connect(SOCKET_URL, {
-	query: {
-		token: localStorage.getItem(ACCESS_TOKEN),
-	},
-});
+let socket: undefined | typeof Socket;
+
+const getSocket = () => {
+	const token = localStorage.getItem(ACCESS_TOKEN);
+	if (token === null) return;
+
+	if (socket === undefined) {
+		socket = connect(SOCKET_URL, {
+			query: {
+				token,
+			},
+		});
+		return socket;
+	}
+	return socket;
+};
 
 export const useMessages = () => {
 	const { authInfo } = useContext(AuthContext);
 	const cache = useRef<RoomsCache>({});
 	const [rooms, setRooms] = useState<Room[]>([]);
-	const [activeRoom, setActiveRoom] = useState<Room | null>(null);
+	const [activeRoom, setActiveRoom] = useState<string>();
 
 	useEffect(() => {
 		const fetchRooms = async () => {
@@ -66,7 +78,6 @@ export const useMessages = () => {
 	useEffect(() => {
 		const changeUserActiveStatus = (userId: string, status: boolean) => {
 			if (userId === authInfo.userInfo.id) return;
-			console.log("user status changed", userId, status);
 			setRooms((oldRooms) =>
 				oldRooms.map((room) => ({
 					...room,
@@ -77,33 +88,58 @@ export const useMessages = () => {
 			);
 		};
 
-		socket.on(SocketListenerTypes.NEW_MESSAGE, (newMessage: Message) => {
-			setActiveRoom((room) => {
-				const roomCopy = JSON.parse(JSON.stringify(room));
-				roomCopy.messages.push(newMessage);
-				return roomCopy;
+		const addNewMessage = (roomId: string, newMessage: Message) => {
+			setRooms((oldRooms) => {
+				const oldRoomsCopy = oldRooms.map((room) => ({ ...room }));
+				const roomIndex = oldRoomsCopy.findIndex(
+					(room) => room.id === roomId
+				);
+				// removing the room from the list
+				// add the message to the room
+				// add it again on start of the list
+				const currentRoom = JSON.parse(
+					JSON.stringify(oldRoomsCopy[roomIndex])
+				);
+				currentRoom.messages.push(newMessage);
+				oldRoomsCopy.splice(roomIndex, 1);
+				oldRoomsCopy.unshift(currentRoom);
+				return oldRoomsCopy;
 			});
-		});
-		socket.on(SocketListenerTypes.ALERT, (data: AlertType) =>
+		};
+
+		getSocket()?.on(
+			SocketListenerTypes.NEW_MESSAGE,
+			({ roomId, message }: { roomId: string; message: Message }) =>
+				addNewMessage(roomId, message)
+		);
+		getSocket()?.on(SocketListenerTypes.ALERT, (data: AlertType) =>
 			alert(data.msg)
 		);
-		socket.on(SocketListenerTypes.USER_ONLINE, (userId: string) =>
+		getSocket()?.on(SocketListenerTypes.USER_ONLINE, (userId: string) =>
 			changeUserActiveStatus(userId, true)
 		);
-		socket.on(SocketListenerTypes.USER_OFFLINE, (userId: string) =>
+		getSocket()?.on(SocketListenerTypes.USER_OFFLINE, (userId: string) =>
 			changeUserActiveStatus(userId, false)
 		);
 	}, [authInfo]);
 
+	useEffect(() => {
+		if (authInfo.authStatus === AuthStatus.NOT_AUTHENTICATED) {
+			setRooms([]);
+			setActiveRoom(undefined);
+			cache.current = {};
+		}
+	}, [authInfo.authStatus]);
+
 	const selectRoom = (id: string) => {
 		const room = rooms.find((room) => room.id === id);
-		if (room) setActiveRoom(room);
+		if (room) setActiveRoom(room.id);
 	};
 
 	const sendMessage = (message: string) => {
 		if (activeRoom && message.trim().length !== 0) {
-			socket.emit(SocketEmitTypes.SEND_MESSAGE, {
-				roomId: activeRoom.id,
+			getSocket()?.emit(SocketEmitTypes.SEND_MESSAGE, {
+				roomId: activeRoom,
 				message,
 				createdAt: new Date(),
 			});
@@ -111,7 +147,7 @@ export const useMessages = () => {
 	};
 
 	const deSelectUser = () => {
-		setActiveRoom(null);
+		setActiveRoom(undefined);
 	};
 
 	const addNewRoom = (newRoom: Room) => {

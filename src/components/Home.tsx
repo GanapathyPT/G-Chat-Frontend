@@ -5,6 +5,10 @@ import ChatBox from "./subComponents/ChatBox";
 import SideBar from "./subComponents/SideBar";
 import { useMessages } from "../actions/users/useMessages";
 import "../styles/home.scss";
+import { Room } from "../types/userTypes";
+
+const getMessage = (rooms: Room[], activeRoom: string) =>
+	(rooms.find((room) => room.id === activeRoom) as Room).messages;
 
 function Home({ logoutUser }: { logoutUser: () => Promise<void> }) {
 	const { authInfo } = useContext(AuthContext);
@@ -48,7 +52,7 @@ function Home({ logoutUser }: { logoutUser: () => Promise<void> }) {
 					{activeRoom ? (
 						<ChatBox
 							sendMessage={sendMessage}
-							messages={activeRoom.messages}
+							messages={getMessage(rooms, activeRoom)}
 							deSelectUser={deSelectUser}
 						/>
 					) : rooms?.length ? (

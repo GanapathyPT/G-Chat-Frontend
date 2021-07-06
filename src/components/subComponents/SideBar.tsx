@@ -22,6 +22,15 @@ const getRandomAvatar = () =>
 const getOnlineStatus = (room: Room, userInfo: UserInfo): boolean =>
 	room.isPersonal &&
 	room.users.some((user) => user.id !== userInfo.id && user.online);
+const getDescription = (room: Room, userInfo: UserInfo) => {
+	if (room.messages.length === 0) return "";
+	const lastMessage = room.messages[room.messages.length - 1];
+	return `${
+		lastMessage.author.id === userInfo.id
+			? "You"
+			: lastMessage.author.username
+	}:${lastMessage.message}`;
+};
 
 function SideBar({
 	activeRoom,
@@ -30,7 +39,7 @@ function SideBar({
 	selectRoom,
 	addNewRoom,
 }: {
-	activeRoom: Room | null;
+	activeRoom?: string;
 	rooms: Room[];
 	logoutUser: () => Promise<void>;
 	selectRoom: (id: string) => void;
@@ -73,7 +82,7 @@ function SideBar({
 				{rooms.map((room) => (
 					<List.Item
 						key={room.id}
-						active={activeRoom?.id === room.id}
+						active={activeRoom === room.id}
 						className="list__item"
 						onClick={() => selectRoom(room.id)}
 					>
@@ -93,10 +102,7 @@ function SideBar({
 						<List.Content>
 							<List.Header>{room.name}</List.Header>
 							<List.Description className="item__description">
-								{room.messages.length > 0
-									? room.messages[room.messages.length - 1]
-											.message
-									: "..........."}
+								{getDescription(room, authInfo.userInfo)}
 							</List.Description>
 						</List.Content>
 					</List.Item>

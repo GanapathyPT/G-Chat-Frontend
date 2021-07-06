@@ -33,7 +33,7 @@ function ChatBox({
 
 	useEffect(() => {
 		if (ref && ref.current) ref.current.scrollIntoView();
-	}, [messages, message, ref]);
+	});
 
 	return (
 		<Segment className="chat__box">
@@ -48,24 +48,16 @@ function ChatBox({
 					<Icon className="info__btn" name="info circle" size="big" />
 				}
 				content={
-					<>
-						<Message
-							warning
-							size="small"
-							header="Not Encrypted"
-							content="messages are not encrypted in this app, don't share any personal info"
-						/>
-						<Message
-							success
-							size="small"
-							header="Auto Delete"
-							content="Messages will be deleted after 24 hours"
-						/>
-					</>
+					<Message
+						warning
+						size="small"
+						header="Not Encrypted"
+						content="messages are not encrypted in this app, don't share any personal info"
+					/>
 				}
 			/>
 			<div className="chat__messages__container">
-				{messages.map((message) => (
+				{messages?.map((message) => (
 					<p
 						key={message.id}
 						className={`chat__message ${
